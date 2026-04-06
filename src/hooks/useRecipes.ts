@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import type { NewRecipe, Recipe } from "../types/recipe";
-import { createRecipe, getAllRecipes, updateRecipe, deleteRecipe } from "../services/recipeService";
+import {
+  createRecipe,
+  getAllRecipes,
+  updateRecipe,
+  deleteRecipe,
+} from "../services/recipeService";
 
 // Custom hook for loading and managing all recipes
 export function useRecipes() {
-  // Stores all recipes
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Loads all recipes
   async function loadRecipes() {
     setLoading(true);
     setError("");
@@ -23,19 +26,18 @@ export function useRecipes() {
       return;
     }
 
-    setRecipes(data as Recipe[] ?? []);
+    setRecipes((data as Recipe[]) ?? []);
     setLoading(false);
   }
 
-  // Reload recipes on mount
   useEffect(() => {
-    loadRecipes();
+    void loadRecipes();
   }, []);
 
-  // Adds a new recipe
-  async function addRecipe(recipe: NewRecipe) {
+  async function addRecipe(recipe: NewRecipe, imageFile?: File | null) {
     clearMessages();
-    const { error } = await createRecipe(recipe);
+
+    const { error } = await createRecipe(recipe, imageFile);
 
     if (error) {
       setError(error.message);
@@ -47,10 +49,20 @@ export function useRecipes() {
     return true;
   }
 
-  // Updates an existing recipe
-  async function editRecipe(recipeId: number, updatedData: Partial<NewRecipe>) {
+  async function editRecipe(
+    recipeId: number,
+    updatedData: Partial<NewRecipe>,
+    imageFile?: File | null,
+    oldImagePath?: string | null
+  ) {
     clearMessages();
-    const { error } = await updateRecipe(recipeId, updatedData);
+
+    const { error } = await updateRecipe(
+      recipeId,
+      updatedData,
+      imageFile,
+      oldImagePath
+    );
 
     if (error) {
       setError(error.message);
@@ -62,10 +74,10 @@ export function useRecipes() {
     return true;
   }
 
-  // Deletes a recipe
-  async function removeRecipe(recipeId: number) {
+  async function removeRecipe(recipe: Recipe) {
     clearMessages();
-    const { error } = await deleteRecipe(recipeId);
+
+    const { error } = await deleteRecipe(recipe);
 
     if (error) {
       setError(error.message);
@@ -77,7 +89,6 @@ export function useRecipes() {
     return true;
   }
 
-  // Helper to clear messages
   function clearMessages() {
     setError("");
     setSuccessMessage("");
@@ -95,4 +106,3 @@ export function useRecipes() {
     clearMessages,
   };
 }
-

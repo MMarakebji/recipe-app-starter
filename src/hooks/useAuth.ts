@@ -1,93 +1,109 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import type { AppUser } from "../types/auth";
-import { getCuurentUser,
-    signInWithEmail,
-    signOutUser,
-    signUpWithEmail,
-    subscribeToAuthChanges
- } from "../services/authService";
+import {
+  getCurrentSession,
+  signInWithEmail,
+  signOutUser,
+  signUpWithEmail,
+  subscribeToAuthChanges,
+} from "../services/authService";
 
-function mapUser(user:{id:string; email?:string | null}|null):AppUser |null{
-    if(!user) return null;
-    return{
-        id:user.id,
-        email: user.email ?? null
-    }
+function mapUser(user: { id: string; email?: string | null } | null): AppUser | null {
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email ?? null,
+  };
 }
- export function useAuth(){
-    const [user, setUser] = useState<AppUser | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const [ successMessage, setsuccessMessage] = useState("");
 
+export function useAuth() {
+  const [user, setUser] = useState<AppUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-    useEffect(()=>{
-        async function loadUser(){
-            setLoading(true)
-            setError("")
-            const {data,error} = await getCuurentUser();
+  useEffect(() => {
+    async function loadSession() {
+      setLoading(true);
+      setError("");
 
-            if(error){
-                setError(error.message)
-                setLoading(false)
-                return
-            }
-            setUser(mapUser(data.user))
-            setLoading(false)
-        }
-        loadUser();
-        const {data: {subscription},} = subscribeToAuthChanges((_event,session)=>{
-            setUser(mapUser(session?.user??null));
-        })
+      const { data, error } = await getCurrentSession();
 
-        return()=>{
-            subscription.unsubscribe()
-        }
-     } ,[])
-      async function signUp(email:string, passowrd:string){
-            setError("");
-            setsuccessMessage("");
-            const {error} = await signUpWithEmail(email,passowrd);
-            if(error){
-                setError(error.message)
-                return false;
-            }
-            setsuccessMessage("Account Created!!!")
-            return true
-        }
-  async function signIn(email:string, passowrd:string){
-            setError("");
-            setsuccessMessage("");
-            const {error} = await signInWithEmail(email,passowrd);
-            if(error){
-                setError(error.message)
-                return false;
-            }
-            setsuccessMessage("Account Created!!!")
-            return true
-        }
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+        return;
+      }
 
-        async function signOut(){
-            setError("");
-            setsuccessMessage("");
-            const {error} = await signOutUser();
-             if(error){
-                setError(error.message)
-                return false;
-            }
-            setsuccessMessage("Signed out success!!")
-            return true
-        }
-     
-       
-      return{
-            user,
-            loading,
-            error,
-            successMessage,
-            signUp,
-            signIn,
-            signOut,
-        
-        }  
- }
+      setUser(mapUser(data.session?.user ?? null));
+      setLoading(false);
+    }
+
+    loadSession();
+
+    const {
+      data: { subscription },
+    } = subscribeToAuthChanges((_event, session) => {
+      setUser(mapUser(session?.user ?? null));
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function signUp(email: string, password: string) {
+    setError("");
+    setSuccessMessage("");
+
+    const { error } = await signUpWithEmail(email, password);
+
+    if (error) {
+      setError(error.message);
+      return false;
+    }
+
+    setSuccessMessage("Account created successfully!");
+    return true;
+  }
+
+  async function signIn(email: string, password: string) {
+    setError("");
+    setSuccessMessage("");
+
+    const { error } = await signInWithEmail(email, password);
+
+    if (error) {
+      setError(error.message);
+      return false;
+    }
+
+    setSuccessMessage("Logged in successfully!");
+    return true;
+  }
+
+  async function signOut() {
+    setError("");
+    setSuccessMessage("");
+
+    const { error } = await signOutUser();
+
+    if (error) {
+      setError(error.message);
+      return false;
+    }
+
+    setSuccessMessage("Signed out successfully!");
+    return true;
+  }
+
+  return {
+    user,
+    loading,
+    error,
+    successMessage,
+    signUp,
+    signIn,
+    signOut,
+  };
+}

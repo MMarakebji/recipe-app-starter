@@ -12,7 +12,7 @@ type RecipeListProps = {
   loading: boolean;
   error: string;
   onEdit: (recipe: Recipe) => void;
-  onDelete: (recipeId: number) => void;
+  onDelete: (recipe: Recipe) => void;
   onToggleFavorite: (recipeId: number, isFavorite: boolean) => void;
 };
 
@@ -35,8 +35,7 @@ export default function RecipeList({
   if (error) return <p style={{ color: "crimson" }}>{error}</p>;
   if (recipes.length === 0) return <p>No recipes match the selected filter.</p>;
 
-  // Set of favored recipe ids for O(1) lookup
-  const favoriteRecipeIds = new Set(favorites.map(f => f.recipe_id));
+  const favoriteRecipeIds = new Set(favorites.map((f) => f.recipe_id));
 
   return (
     <div>

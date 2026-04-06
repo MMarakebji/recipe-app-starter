@@ -13,8 +13,8 @@ export default function App() {
   }
 
   if (user && showAuthPage) {
-    setShowAuthPage(false);
-  }
+  return <DashboardPage user={user} onSignOut={signOut} onSignInClick={() => setShowAuthPage(true)} />;
+}
 
   if (!user && showAuthPage) {
     return (

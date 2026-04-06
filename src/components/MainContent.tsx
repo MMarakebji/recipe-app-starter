@@ -13,7 +13,7 @@ type MainContentProps = {
   loading: boolean;
   error: string;
   onEdit: (recipe: Recipe) => void;
-  onDelete: (recipeId: number) => void;
+  onDelete: (recipe: Recipe) => void;
   onToggleFavorite: (recipeId: number, isFavorite: boolean) => void;
 };
 
@@ -27,12 +27,12 @@ export default function MainContent({
   error,
   onEdit,
   onDelete,
-  onToggleFavorite
+  onToggleFavorite,
 }: MainContentProps) {
-  // Filter by category
-  const filteredRecipes = selectedCategoryId === "All"
-    ? recipes
-    : recipes.filter(r => r.category_id.toString() === selectedCategoryId);
+  const filteredRecipes =
+    selectedCategoryId === "All"
+      ? recipes
+      : recipes.filter((r) => r.category_id.toString() === selectedCategoryId);
 
   return (
     <div>
